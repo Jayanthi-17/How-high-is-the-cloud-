@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aviation Cloud Base Calculator</title>
+  <style>
+    body {
+      background-color: #f0f8ff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .calculator {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      border-top: 5px solid #ad2a24;
+    }
+
+    h2 {
+      color: #ad2a24;
+      margin-bottom: 25px;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+      text-align: left;
+      padding: 0 10%;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #aaa;
+      border-radius: 5px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #ad2a24;
+      color: white;
+      padding: 10px 20px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #8a221e;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+      line-height: 1.6;
+      text-align: left;
+      padding: 15px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      border-left: 4px solid #ad2a24;
+    }
+
+    .formula {
+      font-family: monospace;
+      background-color: #f0f0f0;
+      padding: 5px;
+      border-radius: 3px;
+    }
+
+    .note {
+      font-size: 14px;
+      color: #666;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <h2>Aviation Cloud Base Calculator</h2>
+    
+    <div class="input-group">
+      <label for="temperature">Surface Temperature (°F)</label>
+      <input type="number" id="temperature" placeholder="Enter temperature in °F" />
+    </div>
+    
+    <div class="input-group">
+      <label for="dewpoint">Dew Point (°F)</label>
+      <input type="number" id="dewpoint" placeholder="Enter dew point in °F" />
+    </div>
+    
+    <button onclick="calculateCloudBase()">Calculate Cloud Base</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    function calculateCloudBase() {
+      const temp = parseFloat(document.getElementById("temperature").value);
+      const dewPoint = parseFloat(document.getElementById("dewpoint").value);
+      const resultDiv = document.getElementById("result");
+
+      if (isNaN(temp) || isNaN(dewPoint)) {
+        resultDiv.innerHTML = "Please enter valid temperature and dew point values.";
+        return;
+      }
+
+      if (dewPoint > temp) {
+        resultDiv.innerHTML = "Dew point cannot be higher than surface temperature. Check your inputs.";
+        return;
+      }
+
+      // Calculate cloud base using aviation formula
+      const cloudBase = ((temp - dewPoint) / 4.4) * 1000;
+      
+      // Calculate temperature at cloud base (using lapse rate of 3.5°F per 1000ft)
+      const tempAtCloudBase = temp - (cloudBase / 1000 * 3.5);
+      
+      // Display results
+      resultDiv.innerHTML = `
+        <strong>Cloud Base Altitude:</strong> ${cloudBase.toFixed(0)} feet AGL<br><br>
+        <strong>Temperature at Cloud Base:</strong> ${tempAtCloudBase.toFixed(1)}°F<br>
+        <small>(Using standard lapse rate of 3.5°F per 1,000 ft)</small><br><br>
+        <strong>Formula Used:</strong><br>
+        <span class="formula">((${temp}°F - ${dewPoint}°F) / 4.4) × 1,000 = ${cloudBase.toFixed(0)} ft</span>
+        <div class="note">
+          Note: This calculation provides an estimation of the cloud base altitude above ground level (AGL).
+          Actual conditions may vary due to local atmospheric variations.
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

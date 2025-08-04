@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Aviation Cloud Base Calculator</title>
+  <title>How High Are The Clouds Today?</title>
   <style>
     body {
       background-color: #f0f8ff;
@@ -53,20 +53,38 @@
       box-sizing: border-box;
     }
 
-    button {
-      background-color: #ad2a24;
-      color: white;
-      padding: 10px 20px;
+    .button-group {
+      display: flex;
+      justify-content: space-between;
       margin-top: 15px;
+      gap: 10px; /* Reduced space between buttons */
+    }
+
+    button {
+      color: white;
+      padding: 5px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       font-size: 16px;
       transition: background-color 0.3s;
+      flex: 1; /* Makes buttons equal width */
     }
 
-    button:hover {
+    #calculate {
+      background-color: #ad2a24;
+    }
+
+    #calculate:hover {
       background-color: #8a221e;
+    }
+
+    #reset {
+      background-color: #555;
+    }
+
+    #reset:hover {
+      background-color: #333;
     }
 
     #result {
@@ -93,41 +111,74 @@
       color: #666;
       margin-top: 15px;
     }
+
+    .error {
+      color: #d9534f;
+      font-size: 14px;
+      margin-top: 5px;
+    }
   </style>
 </head>
 <body>
   <div class="calculator">
-    <h2>Aviation Cloud Base Calculator</h2>
+    <h2>How High Are The Clouds Today?</h2>
     
     <div class="input-group">
-      <label for="temperature">Surface Temperature (°F)</label>
+      <label for="temperature">Temperature (°F)</label>
       <input type="number" id="temperature" placeholder="Enter temperature in °F" />
+      <div id="temp-error" class="error"></div>
     </div>
     
     <div class="input-group">
       <label for="dewpoint">Dew Point (°F)</label>
       <input type="number" id="dewpoint" placeholder="Enter dew point in °F" />
+      <div id="dewpoint-error" class="error"></div>
     </div>
     
-    <button onclick="calculateCloudBase()">Calculate Cloud Base</button>
+    <div class="button-group">
+      <button id="reset" onclick="resetForm()">Clear</button>
+      <button id="calculate" onclick="calculateCloudBase()">Calculate</button>
+    </div>
+    
     <div id="result"></div>
   </div>
 
   <script>
+    function validateInputs() {
+      const temp = document.getElementById("temperature").value;
+      const dewPoint = document.getElementById("dewpoint").value;
+      const tempError = document.getElementById("temp-error");
+      const dewpointError = document.getElementById("dewpoint-error");
+      
+      tempError.textContent = "";
+      dewpointError.textContent = "";
+      
+      let isValid = true;
+      
+      if (temp === "" || isNaN(temp)) {
+        tempError.textContent = "Please enter a valid temperature";
+        isValid = false;
+      }
+      
+      if (dewPoint === "" || isNaN(dewPoint)) {
+        dewpointError.textContent = "Please enter a valid dew point";
+        isValid = false;
+      }
+      
+      if (isValid && parseFloat(dewPoint) > parseFloat(temp)) {
+        dewpointError.textContent = "Dew point cannot be higher than temperature";
+        isValid = false;
+      }
+      
+      return isValid;
+    }
+
     function calculateCloudBase() {
+      if (!validateInputs()) return;
+      
       const temp = parseFloat(document.getElementById("temperature").value);
       const dewPoint = parseFloat(document.getElementById("dewpoint").value);
       const resultDiv = document.getElementById("result");
-
-      if (isNaN(temp) || isNaN(dewPoint)) {
-        resultDiv.innerHTML = "Please enter valid temperature and dew point values.";
-        return;
-      }
-
-      if (dewPoint > temp) {
-        resultDiv.innerHTML = "Dew point cannot be higher than surface temperature. Check your inputs.";
-        return;
-      }
 
       // Calculate cloud base using aviation formula
       const cloudBase = ((temp - dewPoint) / 4.4) * 1000;
@@ -137,16 +188,24 @@
       
       // Display results
       resultDiv.innerHTML = `
-        <strong>Cloud Base Altitude:</strong> ${cloudBase.toFixed(0)} feet AGL<br><br>
+        <strong>Cloud Base Height:</strong> ${cloudBase.toFixed(0)} feet above ground level<br><br>
         <strong>Temperature at Cloud Base:</strong> ${tempAtCloudBase.toFixed(1)}°F<br>
         <small>(Using standard lapse rate of 3.5°F per 1,000 ft)</small><br><br>
         <strong>Formula Used:</strong><br>
         <span class="formula">((${temp}°F - ${dewPoint}°F) / 4.4) × 1,000 = ${cloudBase.toFixed(0)} ft</span>
         <div class="note">
-          Note: This calculation provides an estimation of the cloud base altitude above ground level (AGL).
+          Note: This calculation provides an estimation of the cloud base height above ground level.
           Actual conditions may vary due to local atmospheric variations.
         </div>
       `;
+    }
+    
+    function resetForm() {
+      document.getElementById("temperature").value = "";
+      document.getElementById("dewpoint").value = "";
+      document.getElementById("result").innerHTML = "";
+      document.getElementById("temp-error").textContent = "";
+      document.getElementById("dewpoint-error").textContent = "";
     }
   </script>
 </body>
